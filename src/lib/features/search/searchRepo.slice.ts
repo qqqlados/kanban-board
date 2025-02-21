@@ -22,6 +22,7 @@ export interface SearchRepoState {
 		all: IIssue[]
 	}
 	loading: boolean
+	errorFetching: string
 }
 
 const initialState = {
@@ -34,6 +35,7 @@ const initialState = {
 		all: [],
 	},
 	loading: false,
+	errorFetching: '',
 } satisfies SearchRepoState as SearchRepoState
 
 export const searchRepoSlice = createSlice({
@@ -51,27 +53,42 @@ export const searchRepoSlice = createSlice({
 		setIssues: (state, action: PayloadAction<IIssue[]>) => {
 			const issues = action.payload
 
-			const openIssues = issues.filter(item => {
-				return item.state === 'open'
-			})
-			const closedIssues = issues.filter(item => {
-				return item.state === 'closed'
-			})
+			if (issues.length > 0) {
+				const openIssues = issues.filter(item => {
+					return item.state === 'open'
+				})
+				const closedIssues = issues.filter(item => {
+					return item.state === 'closed'
+				})
 
-			state.issues.all = issues
-			state.issues.open = openIssues
-			state.issues.closed = closedIssues
+				state.issues.all = issues
+				state.issues.open = openIssues
+				state.issues.closed = closedIssues
+			}
 		},
 		setIssuesInColumn: (state, action: PayloadAction<{ issues: IIssue[]; target?: 'open' | 'closed' | 'all' }>) => {
 			const { issues, target } = action.payload
 
-			target === 'open' ? (state.issues.open = issues) : target === 'closed' ? (state.issues.closed = issues) : (state.issues.all = issues)
+			switch (target) {
+				case 'open':
+					state.issues.open = issues
+				case 'closed':
+					state.issues.closed = issues
+				case 'all':
+					state.issues.all = issues
+			}
 		},
 		setLoading: (state, action) => {
 			state.loading = action.payload
 		},
+		setErrorFetching: (state, action) => {
+			state.errorFetching = action.payload
+		},
+		resetErrorFetching: state => {
+			state.errorFetching = ''
+		},
 	},
 })
 
-export const { setSearchRepoValue, setIssues, setIssuesInColumn, setLoading } = searchRepoSlice.actions
+export const { setSearchRepoValue, setIssues, setIssuesInColumn, setLoading, setErrorFetching, resetErrorFetching } = searchRepoSlice.actions
 export default searchRepoSlice.reducer

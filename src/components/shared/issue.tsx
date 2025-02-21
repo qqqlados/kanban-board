@@ -14,9 +14,9 @@ export default function Issue({ content }: { content: IIssue }) {
 		  }
 		: undefined
 
-	const author_association = content.author_association.toLowerCase().replace(/^\w/, c => c.toUpperCase())
+	const author_association = content.author_association.toLowerCase().replace(/^\w/, c => c.toUpperCase()) || ''
 
-	const formattedDate = formatDistanceToNow(new Date(content.created_at), { addSuffix: true })
+	const formattedDate = formatDistanceToNow(new Date(content.created_at), { addSuffix: true }) || ''
 
 	return (
 		<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
@@ -25,6 +25,7 @@ export default function Issue({ content }: { content: IIssue }) {
 				style={style}
 				{...attributes}
 				{...listeners}
+				data-testid='issue-item'
 				className='flex flex-col gap-1 w-full min-h-[85px] p-2 pb-4 px-4 text-sm text-left rounded-2xl border border-black bg-white z-10 truncate'
 			>
 				<div>

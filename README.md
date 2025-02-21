@@ -1,36 +1,13 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Fetch-запити
 
-## Getting Started
+Для спрощення завдання я використав звичайний метод fetch, але в реальних проектах я використовую або ж модифікований fetch від Next.js (з опціями кешування та іншими параметрами) і компонент Suspense для асинхронного завантаження компонентів, або ж такі бібліотеки як RTK Query чи Tanstack Query.
+Тобто, було спеціально обрано мною використання станів для завантаження (loading) та помилки (errorFetching) в глобальному стані Redux Toolkit, що є поганою практикою - на своїх же проектах, я використовую надані властивості isLoading, isError і т.д. Тобто, з метою спрощення, було зроблено саме так.
 
-First, run the development server:
+## Redux Persist
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Для зберігання позиції перетягнутих елементів Issue я спочатку хотів використати бібліотеку redux-persist, яка й призначена для конфігурації з Redux Toolkit. Під час конфігурації, мені так і не вдалось завантажувати issuesOrder в localStorage через даний інструмент, тому я вирішив написати вручну механізми зберігання. Також я спеціально обрав зберігати searchValue в SessionStorage, щоби при закритті вкладки користувачем не зберігалось агресивно searchValue й не заважало пошуку.
+Через саме таку реалізацію, у коді присутні багато useEffect, що є не досить хорошою практикою, і я це розумію, але було вирішено вручну написати механізми через помилки в конфігурації бібліотеки redux-persist.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Стилізація
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Я використовував бібліотеку AntDesign, яка є чудовим рішенням, а також писав дизайн сам (наприклад для колонок та issue item, адже не знайшов потрібних заготовлених елементів). Тому прошу не оцінювати дизайн строго, адже я його навмисне робив простим, щоби він відповідав мінімальним потребам. На інших проектах, я намагаюсь створювати дизайн більш приємний та естетичний, зокрема користуюсь заготовленими елементами від тої ж Ant Design.

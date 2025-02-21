@@ -1,14 +1,10 @@
 'use client'
 
-import clsx from 'clsx'
 import { arrayMove, SortableContext, useSortable } from '@dnd-kit/sortable'
 import { DndContext, DragEndEvent } from '@dnd-kit/core'
-import { useEffect, useState } from 'react'
-import { API } from '@/constants'
 import { useAppDispatch, useAppSelector } from '@/lib/store'
 import { IIssue, setIssuesInColumn } from '@/lib/features/search/searchRepo.slice'
 import Issue from './issue'
-import { p } from 'framer-motion/client'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 
@@ -30,6 +26,7 @@ export default function Column({ status, name, issues }: Props) {
 	const author = useAppSelector(state => state.searchRepo.author)
 	const repositoryName = useAppSelector(state => state.searchRepo.repositoryName)
 	const loading = useAppSelector(state => state.searchRepo.loading)
+	const error = useAppSelector(state => state.searchRepo.errorFetching)
 
 	const dispatch = useAppDispatch()
 
@@ -55,7 +52,10 @@ export default function Column({ status, name, issues }: Props) {
 					<span {...listeners} className='text-center font-bold'>
 						{name}
 					</span>
-					<div className='relative bg-gray-300 min-h-[480px] max-h-[530px] h-full p-3 flex flex-col gap-5 border border-black overflow-auto'>
+					<div
+						data-testid='column-container'
+						className='relative bg-gray-300 min-h-[480px] max-h-[530px] h-full p-3 flex flex-col gap-5 border border-black overflow-auto'
+					>
 						{loading ? (
 							<motion.div
 								initial={{ opacity: 0 }}
@@ -71,7 +71,7 @@ export default function Column({ status, name, issues }: Props) {
 							issues?.map(issue => {
 								return <Issue key={issue.id} content={issue} />
 							})
-						) : issues.length == 0 && author && repositoryName ? (
+						) : !error && issues.length == 0 && author && repositoryName ? (
 							<p className='absolute top-[40%] left-[34%]'>No issues found</p>
 						) : (
 							<motion.div
@@ -80,7 +80,7 @@ export default function Column({ status, name, issues }: Props) {
 								transition={{ duration: 0.3, ease: 'easeOut' }}
 								className='w-full h-full grid place-items-center'
 							>
-								<Image src={'/kanban.webp'} width={200} height={200} alt='Description logo' />
+								<Image src={'/kanban.webp'} width={200} height={200} alt='Description logo' priority={true} />
 							</motion.div>
 						)}
 					</div>

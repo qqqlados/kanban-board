@@ -1,6 +1,6 @@
 'use client'
 
-import { setSearchRepoValue } from '@/lib/features/search/searchRepo.slice'
+import { setErrorFetching, setSearchRepoValue } from '@/lib/features/search/searchRepo.slice'
 import { useAppDispatch, useAppSelector } from '@/lib/store'
 import { Input, InputProps } from 'antd'
 import { useEffect, useState } from 'react'
@@ -34,12 +34,17 @@ export default function SearchInput({ className, ...props }: Props) {
 
 	const handleSearch = () => {
 		sessionStorage.setItem('searchRepo', JSON.stringify(search))
-		dispatch(setSearchRepoValue(search))
+		if (!search.includes('/')) {
+			dispatch(setErrorFetching('Type the valid URL for the repository'))
+		} else {
+			dispatch(setSearchRepoValue(search))
+		}
 	}
 
 	return (
 		<div className={className}>
 			<Search
+				data-testid='search-repo-input'
 				{...props}
 				addonBefore='https://github.com/'
 				onChange={e => setSearch(e.target.value)}

@@ -1,12 +1,10 @@
 'use client'
 
 import Column from './column'
-import { useEffect, useState } from 'react'
-import { DndContext, DragEndEvent } from '@dnd-kit/core'
-import { arrayMove, SortableContext } from '@dnd-kit/sortable'
+import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '@/lib/store'
-import { IIssue, setIssues, setLoading, setSearchRepoValue } from '@/lib/features/search/searchRepo.slice'
-import { API } from '@/constants'
+import { IIssue, resetErrorFetching, setErrorFetching, setIssues, setLoading, setSearchRepoValue } from '@/lib/features/search/searchRepo.slice'
+import { URL } from '@/constants'
 
 export default function ColumnsArea() {
 	const author = useAppSelector(state => state.searchRepo.author)
@@ -26,15 +24,24 @@ export default function ColumnsArea() {
 			} else {
 				const fetchIssues = async () => {
 					try {
+						dispatch(resetErrorFetching())
 						dispatch(setLoading(true))
 
-						const issues: IIssue[] = await fetch(`${API.API_URL}/${author}/${repositoryName}/issues`).then(res => res.json())
+						const response = await fetch(`${URL.REPO_API}/${author}/${repositoryName}/issues`)
 
-						localStorage.setItem(storageKey, JSON.stringify(issues))
+						if (!response.ok) {
+							if (response.status === 404) {
+								dispatch(setErrorFetching('No repository found'))
+							}
+						} else {
+							const issues: IIssue[] = await response.json()
 
-						dispatch(setIssues(issues))
+							localStorage.setItem(storageKey, JSON.stringify(issues))
+
+							dispatch(setIssues(issues))
+						}
 					} catch (err) {
-						console.error('Internal server error.')
+						console.error(err)
 					} finally {
 						dispatch(setLoading(false))
 					}
@@ -42,7 +49,7 @@ export default function ColumnsArea() {
 				fetchIssues()
 			}
 		}
-	}, [author, repositoryName])
+	}, [author, repositoryName, dispatch])
 
 	useEffect(() => {
 		const savedSearch = sessionStorage.getItem('searchRepo')
@@ -52,29 +59,15 @@ export default function ColumnsArea() {
 
 			dispatch(setSearchRepoValue(parsedSearch))
 		}
-	}, [])
-
-	// const handleOnDragEnd = (event: DragEndEvent) => {
-	// 	const { active, over } = event
-	// 	if (!over || active.id === over.id) return
-
-	// 	const oldIndex = issues.all.findIndex(issue => issue.id === active.id)
-	// 	const newIndex = issues.all.findIndex(issue => issue.id === over.id)
-
-	// 	dispatch(setIssues(arrayMove(issues.all, oldIndex, newIndex)))
-	// }
+	}, [dispatch])
 
 	return (
-		<DndContext>
-			<div className='grid grid-cols-3 gap-10 h-full mt-10'>
-				<SortableContext items={issues.all}>
-					<Column name='ToDo' status='all' issues={issues.all} />
+		<div className='grid grid-cols-3 gap-10 h-full mt-10'>
+			<Column name='ToDo' status='all' issues={issues.all} />
 
-					<Column name='In Progress' status='open' issues={issues.open} />
+			<Column name='In Progress' status='open' issues={issues.open} />
 
-					<Column name='Done' status='closed' issues={issues.closed} />
-				</SortableContext>
-			</div>
-		</DndContext>
+			<Column name='Done' status='closed' issues={issues.closed} />
+		</div>
 	)
 }

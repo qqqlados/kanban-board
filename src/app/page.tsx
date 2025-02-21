@@ -1,7 +1,5 @@
 import ColumnsArea from '@/components/shared/columns-area'
 import HeaderSearchInput from '@/components/shared/header-search-input'
-import SearchInput from '@/components/ui/search-input'
-import Link from 'next/link'
 
 export default function Home() {
 	return (
